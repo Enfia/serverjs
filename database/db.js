@@ -7,7 +7,6 @@ const connection = mysql.createConnection({
   user: 'root', // MySQL 사용자명
   password: process.env.PASSWORD, // MySQL 비밀번호
   database: 'login_db' // 회원가입/로그인 DB
-
 });
 
 // MySQL 연결

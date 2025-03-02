@@ -3,18 +3,21 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config(); // .env 파일 로드
 
-exports.loginUser = (req, res) => {
+exports.loginUser = (req, res, next) => {
+  // console.log("로그인 기능 실행됨")
+  
   const { username, password } = req.body;
 
   // 데이터베이스에서 사용자 조회
-  connection.query('SELECT * FROM userstable WHERE username = ?', [username], (err, results) => {
+  const loginsql = 'SELECT * FROM userstable WHERE username = ?'
+  connection.query(loginsql, [username], (err, results) => {
     if (err) {
       console.error('DB 오류:', err);
       return res.status(500).send('서버 오류 1');
     }
 
     if (results.length === 0) {
-      return res.status(401).send('사용자 이름 또는 비밀번호가 잘못되었습니다.');
+      return res.status(401).send('사용자 이름 또는 비밀번호가 잘못되었습니다.1');
     }
 
   const user = results[0];
@@ -25,12 +28,13 @@ exports.loginUser = (req, res) => {
     }
 
     if (!isMatch) {
-      return res.status(401).send('사용자 이름 또는 비밀번호가 잘못되었습니다.');
+      return res.status(401).send('사용자 이름 또는 비밀번호가 잘못되었습니다.2');
     }
 
     if(isMatch){
-      res.render('main'); // 세션에서 username을 가져와 템플릿에 전달      
-    }
+      req.user = { id: user.id, username: user.username, role: user.role };
+      next();
+    } 
 
     // JWT 토큰 생성
     const payload = { username: user.username, userId: user.id };  // 토큰에 담을 정보
@@ -52,6 +56,7 @@ exports.loginUser = (req, res) => {
   
 // 회원가입 처리 함수
 exports.registerUser = (req, res) => {
+  console.log("회원가입 기능 실행됨")
     const { username, password, email, marketing } = req.body;
     const marketingValue = marketing === 'on' ? 1 : 0;
 
@@ -79,10 +84,19 @@ exports.registerUser = (req, res) => {
                     console.log(err);
                     return res.status(500).send('회원가입 오류');
                 }
-
                 res.status(200).send('회원가입 성공');
             });
         });
     });
 };
 
+exports.checkRole = (req, res, next) => {
+  const { role } = req.user;
+
+  if (role !== 'admin') {
+    // return res.status(403).send('권한이 없습니다.');
+    res.render('main');
+  } else
+  // res.status(200).send('로그인 성공, 관리자 권한 확인됨');
+  res.render('admin');
+};

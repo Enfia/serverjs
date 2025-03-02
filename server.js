@@ -14,7 +14,6 @@ app.set('views', path.join(__dirname, 'views'));  // views 폴더 경로 설정
 app.use(express.urlencoded({ extended: true }));  // URL-encoded 데이터 처리
 app.use(bodyParser.json());
 
-
 // 라우트 설정
 app.use('/', userRoutes);  // 루트 경로에 userRoutes를 사용
 
