@@ -1,7 +1,5 @@
 const mysql = require('mysql2');
 require('dotenv').config(); // .env 파일 로드
-const test = "123";
-
 
 // MySQL 연결 설정
 const connection = mysql.createConnection({

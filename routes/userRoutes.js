@@ -1,7 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const test = "123";
-
 
 // 컨트롤러에서 로그인, 회원가입 함수 임포트
 const { loginUser, registerUser } = require('../controllers/userController');

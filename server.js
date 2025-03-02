@@ -5,8 +5,6 @@ const userRoutes = require('./routes/userRoutes');  // userRoutes 파일을 임�
 const connection = require('./database/db.js'); // 예시 경로
 const bodyParser = require('body-parser');
 require('dotenv').config(); // .env 파일 로드
-const test = "123";
-
 
 // 뷰 엔진 설정
 app.set('view engine', 'ejs');
