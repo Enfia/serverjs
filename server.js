@@ -11,7 +11,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));  // views 폴더 경로 설정
 
 // 폼 데이터 파싱 (POST 데이터 처리)
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));  // URL-encoded 데이터 처리
 app.use(bodyParser.json());
 
 
