@@ -1,5 +1,6 @@
 const connection = require('../database/db');
 const bcrypt = require('bcrypt');
+const test = "123";
 
 // 로그인 처리 함수
 exports.loginUser = (req, res) => {
