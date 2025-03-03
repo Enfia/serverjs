@@ -1,13 +1,13 @@
 const connection = require('../database/db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-require('dotenv').config(); // .env 파일 로드
+require('dotenv').config();
 
-exports.loginUser = (req, res, next) => {
-  // console.log("로그인 기능 실행됨")
-  
+// 로그인 처리 함수
+const loginUser = (req, res, next) => {
+
   const { username, password } = req.body;
-
+  
   // 데이터베이스에서 사용자 조회
   const loginsql = 'SELECT * FROM userstable WHERE username = ?'
   connection.query(loginsql, [username], (err, results) => {
@@ -52,45 +52,47 @@ exports.loginUser = (req, res, next) => {
       });
     });
   });
-};
+}
   
 // 회원가입 처리 함수
-exports.registerUser = (req, res) => {
+const registerUser = (req, res) => {
   console.log("회원가입 기능 실행됨")
-    const { username, password, email, marketing } = req.body;
-    const marketingValue = marketing === 'on' ? 1 : 0;
+  const { username, password, email, marketing } = req.body;
+  const marketingValue = marketing === 'on' ? 1 : 0;
 
     // 아이디 중복 체크
-    const checkSql = "SELECT * FROM userstable WHERE username = ?";
-    connection.query(checkSql, [username], (err, result) => {
-        if (err) {
-            console.log(err);
-            return res.status(500).send('서버 오류');
-        }
+  const checkSql = "SELECT * FROM userstable WHERE username = ?";
+  connection.query(checkSql, [username], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send('서버 오류');
+    }
 
-        if (result.length > 0) {
-            // 아이디가 이미 존재하는 경우
-            return res.status(400).send('이미 존재하는 아이디입니다.');
+    if (result.length > 0) {
+      // 아이디가 이미 존재하는 경우
+      return res.status(400).send('이미 존재하는 아이디입니다.');
+    }
+
+    bcrypt.hash(password, 10, (err, hashPassword) => {
+      if (err) {
+        console.error('비밀번호 암호화 오류:', err);
+        return res.status(500).send('서버 오류');
+      }
+      // 중복되지 않는 경우 회원가입 처리
+      const sql = "INSERT INTO userstable (username, password, email, marketing) VALUES (?, ?, ?, ?)";
+      connection.query(sql, [username, hashPassword, email, marketingValue || null], (err, result) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).send('회원가입 오류');
         }
-        bcrypt.hash(password, 10, (err, hashPassword) => {
-          if (err) {
-            console.error('비밀번호 암호화 오류:', err);
-            return res.status(500).send('서버 오류');
-        }
-            // 중복되지 않는 경우 회원가입 처리
-            const sql = "INSERT INTO userstable (username, password, email, marketing) VALUES (?, ?, ?, ?)";
-            connection.query(sql, [username, hashPassword, email, marketingValue || null], (err, result) => {
-                if (err) {
-                    console.log(err);
-                    return res.status(500).send('회원가입 오류');
-                }
-                res.status(200).send('회원가입 성공');
-            });
-        });
+        res.status(200).send('회원가입 성공');
+      });
     });
+  });
 };
 
-exports.checkRole = (req, res, next) => {
+// 어드민 처리 함수
+const checkRole = (req, res, next) => {
   const { role } = req.user;
 
   if (role !== 'admin') {
@@ -100,3 +102,5 @@ exports.checkRole = (req, res, next) => {
   // res.status(200).send('로그인 성공, 관리자 권한 확인됨');
   res.render('admin');
 };
+
+module.exports = { loginUser, registerUser, checkRole };
