@@ -14,18 +14,18 @@ router.get('/register', (req, res) => {
   res.render('register');
 });
 
-// 로그인 라우터
+// 로그인, 어드민
 router.post('/login', loginUser, checkRole);
 
-// 회원가입 처리
+// 회원가입
 router.post('/register', registerUser);
 
-// 'main.ejs' 파일을 렌더링
+// 'main.ejs'
 router.get('/main', (req, res) => {
   res.render('main'); 
 });
 
-// 'main.ejs' 파일을 렌더링
+// 'main.ejs'
 router.get('/logout', (req, res) => {
   res.render('main'); 
 });
