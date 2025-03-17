@@ -1,7 +1,7 @@
-const connection = require('../database/db');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const connection = require('../database/db'); // MySQL DB
+const bcrypt = require('bcrypt'); // bcrypt 모듈 (비밀번호 해쉬화, 조회)
+const jwt = require('jsonwebtoken'); // jsonwebtoken 모듈 (토큰)
+require('dotenv').config(); // .env 파일 로드
 
 // 로그인 처리 함수
 const loginUser = (req, res, next) => {
@@ -21,6 +21,8 @@ const loginUser = (req, res, next) => {
     }
 
   const user = results[0];
+
+  // 데이터베이스에서 비밀번호 조회
   bcrypt.compare(password, user.password, (err, isMatch) => {
     if (err) {
       console.error('비밀번호 비교 오류:', err);
@@ -47,12 +49,12 @@ const loginUser = (req, res, next) => {
         console.error('토큰 생성 오류:', err);
         return res.render('login', { message : '서버 오류 3' });
       }
-
+      // JWT 토큰 리턴
       return res.status(200).json({ token: token, });
       });
     });
   });
-}
+};
   
 // 회원가입 처리 함수
 const registerUser = (req, res) => {
@@ -69,15 +71,18 @@ const registerUser = (req, res) => {
     }
 
     if (result.length > 0) {
+
       // 아이디가 이미 존재하는 경우
       return res.status(400).send('이미 존재하는 아이디입니다.');
     }
 
+    // 비밀번호 해쉬
     bcrypt.hash(password, 10, (err, hashPassword) => {
       if (err) {
         console.error('비밀번호 암호화 오류:', err);
         return res.status(500).send('서버 오류');
       }
+
       // 중복되지 않는 경우 회원가입 처리
       const sql = "INSERT INTO userstable (username, password, email, marketing) VALUES (?, ?, ?, ?)";
       connection.query(sql, [username, hashPassword, email, marketingValue || null], (err, result) => {
@@ -96,10 +101,10 @@ const checkRole = (req, res, next) => {
   const { role } = req.user;
 
   if (role !== 'admin') {
-    // return res.status(403).send('권한이 없습니다.');
+    // return res.status(403).send('권한이 없음');
     res.render('main');
   } else
-  // res.status(200).send('로그인 성공, 관리자 권한 확인됨');
+  // res.status(200).send('로그인 성공! 관리자 권한 확인됨');
   res.render('admin');
 };
 
